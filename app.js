@@ -10,15 +10,63 @@ document.addEventListener('DOMContentLoaded', function() {
       alert(`Message Sent!\n\nName: ${name}\nEmail: ${email}\nMessage: ${message}`);
     });
     // GSAP Scramble Effect for Contact Me (always run after plugin registration)
-		gsap.to("#contact-text", {
-			duration: 2,
-			scrambleText: {
-				text: "CONTACT ME.",
-			},
-			repeat: -1,
-			yoyo: true,
-			repeatDelay: 1
-		});
+					// Custom scramble text animation for #contact-text
+						const scrambleTarget = document.getElementById("contact-text");
+						if (scrambleTarget) {
+							const original = "CONTACT ME.";
+							const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+							let frame = 0;
+							let direction = 1; // 1 = scramble in, -1 = scramble out
+							let isPaused = false;
+							function scramble() {
+								let output = "";
+								let scrambling = false;
+								for (let i = 0; i < original.length; i++) {
+									if (direction === 1 && frame < i) {
+										output += chars[Math.floor(Math.random() * chars.length)];
+										scrambling = true;
+									} else if (direction === -1 && frame > original.length - i - 1) {
+										output += chars[Math.floor(Math.random() * chars.length)];
+										scrambling = true;
+									} else {
+										output += original[i];
+									}
+								}
+								// Always show original text when paused
+								if (isPaused) {
+									scrambleTarget.childNodes[0].nodeValue = original;
+								} else {
+									scrambleTarget.childNodes[0].nodeValue = output;
+								}
+								if (direction === 1) {
+									frame++;
+									if (frame > original.length + 6) {
+										direction = -1;
+										frame = 0;
+										isPaused = true;
+										setTimeout(() => {
+											isPaused = false;
+											scramble();
+										}, 900);
+										return;
+									}
+								} else {
+									frame++;
+									if (frame > original.length + 6) {
+										direction = 1;
+										frame = 0;
+										isPaused = true;
+										setTimeout(() => {
+											isPaused = false;
+											scramble();
+										}, 900);
+										return;
+									}
+								}
+								setTimeout(scramble, 50);
+							}
+							scramble();
+						}
     // GSAP Scramble Effect for Button (on hover)
     const btn = document.getElementById("scramble-btn");
     if (btn) {
