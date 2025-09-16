@@ -1,7 +1,3 @@
-// Register GSAP ScrambleTextPlugin if available
-if (window.gsap && window.ScrambleTextPlugin) {
-	gsap.registerPlugin(ScrambleTextPlugin);
-}
 // CONTACT SECTION LOGIC
 document.addEventListener('DOMContentLoaded', function() {
   const contactForm = document.getElementById("contactForm");
@@ -14,15 +10,15 @@ document.addEventListener('DOMContentLoaded', function() {
       alert(`Message Sent!\n\nName: ${name}\nEmail: ${email}\nMessage: ${message}`);
     });
     // GSAP Scramble Effect for Contact Me (always run after plugin registration)
-    gsap.to("#contact-text", {
-      duration: 2,
-      scrambleText: {
-        text: "CONTACT ME.",
-      },
-      repeat: -1,
-      yoyo: true,
-      repeatDelay: 1
-    });
+		gsap.to("#contact-text", {
+			duration: 2,
+			scrambleText: {
+				text: "CONTACT ME.",
+			},
+			repeat: -1,
+			yoyo: true,
+			repeatDelay: 1
+		});
     // GSAP Scramble Effect for Button (on hover)
     const btn = document.getElementById("scramble-btn");
     if (btn) {
