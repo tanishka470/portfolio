@@ -1,3 +1,23 @@
+// Navigation for glass-action-btn buttons
+document.addEventListener('DOMContentLoaded', function() {
+	const navMap = [
+		{ btn: 'btn-about', section: 'typewriter-text' },
+		{ btn: 'btn-projects', section: 'projects' },
+		{ btn: 'btn-experience', section: 'experience' },
+		{ btn: 'btn-contact', section: 'contact' }
+	];
+	navMap.forEach(({ btn, section }) => {
+		const button = document.getElementById(btn);
+		const target = document.getElementById(section);
+		if (button && target) {
+			button.addEventListener('click', () => {
+				target.scrollIntoView({ behavior: 'smooth' });
+			});
+			// Optional: Add hover effect for pointer
+			button.style.cursor = 'pointer';
+		}
+	});
+});
 // CONTACT SECTION LOGIC
 document.addEventListener('DOMContentLoaded', function() {
   const contactForm = document.getElementById("contactForm");
