@@ -1,8 +1,8 @@
 // Navigation for glass-action-btn buttons
 document.addEventListener('DOMContentLoaded', function() {
 	const navMap = [
-		{ btn: 'btn-about', section: 'typewriter-text' },
 		{ btn: 'btn-projects', section: 'projects' },
+		{ btn: 'btn-skills', section: 'skills' },
 		{ btn: 'btn-experience', section: 'experience' },
 		{ btn: 'btn-contact', section: 'contact' }
 	];
@@ -250,17 +250,33 @@ document.addEventListener("DOMContentLoaded", function() {
   const floats = Array.from(floatArea.querySelectorAll(".skill-float"));
   const floatData = [];
 
-  floats.forEach((float) => {
-    const speed = Math.random() * 1.5 + 1.8; // even faster: min 1.8, max 3.3
-    const dx = (Math.random() < 0.5 ? -1 : 1) * speed;
-    const dy = (Math.random() < 0.5 ? -1 : 1) * speed;
+  floats.forEach((float, index) => {
+    // Much faster speeds and directions
+    const baseSpeed = Math.random() * 4 + 2.5; // 2.5 to 6.5 - much faster!
+    const angle = (Math.random() * Math.PI * 2); // Random angle in radians
+    const dx = Math.cos(angle) * baseSpeed;
+    const dy = Math.sin(angle) * baseSpeed;
+    
     const maxX = floatArea.clientWidth - float.offsetWidth;
     const maxY = floatArea.clientHeight - float.offsetHeight;
     const x = Math.random() * maxX;
     const y = Math.random() * maxY;
+    
     float.style.left = `${x}px`;
     float.style.top = `${y}px`;
-    const data = { float, dx, dy, x, y, speed, isPaused: false };
+    
+    const data = { 
+      float, 
+      dx, 
+      dy, 
+      x, 
+      y, 
+      baseSpeed,
+      isPaused: false,
+      // Add slight variation to each icon
+      speedVariation: Math.random() * 0.4 + 0.9 // 0.9 to 1.3 multiplier - wider range
+    };
+    
     float.addEventListener("mouseenter", () => (data.isPaused = true));
     float.addEventListener("mouseleave", () => (data.isPaused = false));
     floatData.push(data);
@@ -269,23 +285,38 @@ document.addEventListener("DOMContentLoaded", function() {
   function animate() {
     const areaWidth = floatArea.clientWidth;
     const areaHeight = floatArea.clientHeight;
+    
     floatData.forEach((data) => {
       if (data.isPaused) return;
-      data.x += data.dx;
-      data.y += data.dy;
+      
+      // Apply speed variation for more independent movement
+      const currentSpeedX = data.dx * data.speedVariation;
+      const currentSpeedY = data.dy * data.speedVariation;
+      
+      data.x += currentSpeedX;
+      data.y += currentSpeedY;
+      
+      // Bounce off walls with slight randomization
       if (data.x <= 0 || data.x + data.float.offsetWidth >= areaWidth) {
         data.dx *= -1;
         data.x = Math.max(0, Math.min(data.x, areaWidth - data.float.offsetWidth));
+        // Add slight randomization on bounce
+        data.speedVariation = Math.random() * 0.4 + 0.9;
       }
       if (data.y <= 0 || data.y + data.float.offsetHeight >= areaHeight) {
         data.dy *= -1;
         data.y = Math.max(0, Math.min(data.y, areaHeight - data.float.offsetHeight));
+        // Add slight randomization on bounce
+        data.speedVariation = Math.random() * 0.4 + 0.9;
       }
+      
       data.float.style.left = `${data.x}px`;
       data.float.style.top = `${data.y}px`;
     });
+    
     requestAnimationFrame(animate);
   }
+  
   animate();
 });
 // Experience card hover and settle animation
