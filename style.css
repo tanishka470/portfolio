@@ -978,3 +978,39 @@ html {
 .experience-title, .skill-title {
   font-family: 'JetBrains Mono', 'Courier New', monospace !important;
 }
+
+/* Dancing Text Animation */
+.dance-letter {
+  display: inline-block;
+  transition: transform 0.08s ease-out;
+  transform-origin: center center;
+  position: relative;
+  will-change: transform; /* Optimize for smooth animations */
+}
+
+#dancing-text {
+  pointer-events: none; /* Allow clicks to pass through to guitar string */
+  position: relative;
+  overflow: visible; /* Allow letters to move outside bounds */
+}
+
+/* Guitar string container hover effect for text */
+#string:hover ~ #dancing-text .dance-letter,
+#string.string-active .dance-letter {
+  animation: letterDance 0.6s ease-in-out infinite;
+}
+
+@keyframes letterDance {
+  0%, 100% { 
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  25% { 
+    transform: translateY(-8px) rotate(1deg) scale(1.05);
+  }
+  50% { 
+    transform: translateY(-12px) rotate(-0.5deg) scale(1.08);
+  }
+  75% { 
+    transform: translateY(-6px) rotate(0.8deg) scale(1.03);
+  }
+}

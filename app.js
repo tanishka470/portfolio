@@ -111,6 +111,59 @@ document.addEventListener('DOMContentLoaded', function() {
 	if (!stringPath) return;
 	const initialPath = 'M 0 100 Q 500 100 1000 100';
 	const stringDiv = document.getElementById('string');
+	const danceLetters = document.querySelectorAll('.dance-letter');
+	const dancingTextDiv = document.getElementById('dancing-text');
+	
+	// Function to make the entire text arc/bend like the guitar string
+	function animateLettersOnExactCurve(mouseX, mouseY) {
+		const textRect = dancingTextDiv.getBoundingClientRect();
+		const textWidth = textRect.width;
+		
+		// Calculate the curve intensity based on mouse position
+		const curveIntensity = (mouseY - 100) * 0.8; // How much the curve bends
+		const curveCenter = mouseX / 1000; // Where the curve peaks (0 to 1)
+		
+		danceLetters.forEach((letter, index) => {
+			if (letter.textContent.trim() === '') return; // Skip spaces
+			
+			// Calculate the letter's relative position along the text (0 to 1)
+			const letterRect = letter.getBoundingClientRect();
+			const letterCenter = letterRect.left + letterRect.width / 2 - textRect.left;
+			const t = letterCenter / textWidth; // Parameter t from 0 to 1
+			
+			// Create an arc - calculate how far this letter is from the curve center
+			const distanceFromCenter = Math.abs(t - curveCenter);
+			
+			// Create a parabolic arc shape - letters closer to center curve more
+			const arcFactor = 1 - Math.pow(distanceFromCenter * 2, 2); // Parabolic shape
+			const arcHeight = curveIntensity * Math.max(0, arcFactor);
+			
+			// Calculate the slope at this point for rotation
+			const slope = curveIntensity * 4 * (curveCenter - t); // Derivative of parabola
+			const rotation = Math.atan(slope) * (180 / Math.PI) * 0.5; // Convert to degrees
+			
+			// Apply the arc transformation
+			gsap.to(letter, {
+				y: -arcHeight,
+				rotation: rotation,
+				duration: 0.08,
+				ease: 'power2.out'
+			});
+		});
+	}
+	
+	// Function to reset letters to normal position
+	function resetLetters() {
+		danceLetters.forEach((letter) => {
+			gsap.to(letter, {
+				y: 0,
+				rotation: 0,
+				duration: 1,
+				ease: 'elastic.out(1, 0.2)'
+			});
+		});
+	}
+	
 	stringDiv.addEventListener('mousemove', (e) => {
 		const svg = stringDiv.querySelector('svg');
 		const rect = svg.getBoundingClientRect();
@@ -118,18 +171,26 @@ document.addEventListener('DOMContentLoaded', function() {
 		const x = ((e.clientX - rect.left) / rect.width) * 1000;
 		const y = ((e.clientY - rect.top) / rect.height) * 200;
 		const path = `M 0 100 Q ${x} ${y} 1000 100`;
+		
 		gsap.to(stringPath, {
 			attr: { d: path },
 			duration: 0.1,
 			ease: 'power3.out'
 		});
+		
+		// Make letters follow the exact curved path
+		animateLettersOnExactCurve(x, y);
 	});
+	
 	stringDiv.addEventListener('mouseleave', () => {
 		gsap.to(stringPath, {
 			attr: { d: initialPath },
 			duration: 1,
 			ease: 'elastic.out(1, 0.2)'
 		});
+		
+		// Reset letters with same elastic bounce as string
+		resetLetters();
 	});
 });
 // Image ring animation logic for .image-container
@@ -185,8 +246,10 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 // Custom typewriter animation for glass-title
 const typewriterText = document.getElementById('typewriter-text');
-const name1 = 'TANISHKA';
-const name2 = 'SHARMA';
+const name1 = 'TANISHKA SHARMA';
+const name2 = 'TANISHKA SHARMA';
+
+
 let state = 0; // 0: backspacing, 1: typing SHARMA, 2: backspacing SHARMA, 3: typing TANISHKA
 let index = name1.length;
 
