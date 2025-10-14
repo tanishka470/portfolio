@@ -635,9 +635,6 @@ html {
   max-width: 100%;
   flex-wrap: nowrap;
 }
-.card-row:hover {
-  transform: scale(1.08);
-}
 .card-row:hover .card-inner {
   transform: rotateX(180deg);
 }
@@ -653,9 +650,9 @@ html {
   background: #222;
   position: relative;
   margin: 0;
-  border: 2.5px solid rgba(0,255,136,0.32); /* glassy green border */
   backdrop-filter: blur(6px) saturate(120%);
   -webkit-backdrop-filter: blur(6px) saturate(120%);
+  box-sizing: border-box;
 }
 
 .card-inner {
@@ -681,13 +678,11 @@ html {
   transition: background 0.5s cubic-bezier(.77,0,.18,1), color 0.5s cubic-bezier(.77,0,.18,1);
 }
 .card-front {
-  width: 100% !important;
-  height: 100% !important;
-  border-radius: 12px !important;
-  overflow: hidden !important;
-  background-size: cover !important;
-  background-position: center !important;
-  background-repeat: no-repeat !important;
+  border-radius: 12px;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   display: flex;
   align-items: flex-end;
   justify-content: flex-start;
@@ -695,8 +690,11 @@ html {
   color: #fff;
   font-size: 1.1rem;
   font-weight: 600;
-  box-shadow: 0 2px 12px 0 rgba(0,255,136,0.10);
-  background-color: #222;
+  background-color: transparent;
+}
+
+#card1 .card-front {
+  background-image: url('image.png');
 }
 .card-back {
   transform: rotateY(180deg);
@@ -877,12 +875,6 @@ html {
   font-family: 'JetBrains Mono', 'Courier New', monospace !important;
 }
 
-/* Example images for each card (replace URLs as needed) */
-#card1 .card-front { background-image: url('https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80'); }
-#card2 .card-front { background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80'); }
-#card3 .card-front { background-image: url('https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80'); }
-#card4 .card-front { background-image: url('https://images.unsplash.com/photo-1519985176271-adb1088fa94c?auto=format&fit=crop&w=400&q=80'); }
-
 /* --- Experience Section Styles --- */
 #experience {
   width: 100%;
@@ -977,6 +969,108 @@ html {
 /* Terminal font override for section titles */
 .experience-title, .skill-title {
   font-family: 'JetBrains Mono', 'Courier New', monospace !important;
+}
+
+/* Project Container Layout */
+.project-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 32px;
+  margin: 32px 0;
+  max-width: 100%;
+  flex-wrap: nowrap;
+}
+
+/* Project Buttons Styling - positioned below each card */
+.project-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.project-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  text-decoration: none;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  transition: all 0.3s ease;
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(0, 255, 136, 0.1);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.github-btn {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.github-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #fff;
+  transform: translateY(-3px) scale(1.1);
+  box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.live-btn {
+  border-color: rgba(0, 255, 136, 0.3);
+}
+
+.live-btn:hover {
+  background: rgba(0, 255, 136, 0.2);
+  border-color: rgba(0, 255, 136, 0.6);
+  color: #00ff88;
+  transform: translateY(-3px) scale(1.1);
+  box-shadow: 0 6px 16px rgba(0, 255, 136, 0.3);
+}
+
+.project-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Card Icons - Icons below each individual card */
+.card-icons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 15px;
+  padding-bottom: 20px;
+}
+
+.project-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(0,255,136,0.7);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  padding: 8px;
+}
+
+.project-icon-btn:hover {
+  color: #00ff88;
+  transform: translateY(-2px) scale(1.1);
+  filter: drop-shadow(0 0 8px rgba(0,255,136,0.4));
+}
+
+.project-icon-btn svg {
+  width: 24px;
+  height: 24px;
 }
 
 /* Dancing Text Animation */
