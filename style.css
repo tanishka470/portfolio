@@ -695,6 +695,29 @@ html {
 
 #card1 .card-front {
   background-image: url('image.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+#card2 .card-front {
+  background-image: url('image2.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+#card3 .card-front {
+  background-image: url('image3.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 12px;
+  overflow: hidden;
 }
 .card-back {
   transform: rotateY(180deg);
@@ -1048,7 +1071,7 @@ html {
   display: flex;
   justify-content: center;
   gap: 15px;
-  margin-top: 15px;
+  margin-top: 30px;
   padding-bottom: 20px;
 }
 
