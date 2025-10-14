@@ -719,6 +719,15 @@ html {
   border-radius: 12px;
   overflow: hidden;
 }
+
+#card4 .card-front {
+  background-image: url('image4.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 12px;
+  overflow: hidden;
+}
 .card-back {
   transform: rotateY(180deg);
   background: rgba(0,255,136,0.18) !important;
