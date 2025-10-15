@@ -224,26 +224,158 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
 	const textElement = document.getElementById("animatedText");
 	if (textElement) {
-		// Split text into words
-		const words = textElement.innerText.split(" ");
-		textElement.innerHTML = words.map(word => `<span>${word} </span>`).join("");
-		// Select all spans
+		// Get the original HTML to preserve the highlight-text span
+		const originalHTML = textElement.innerHTML;
+		
+		// Split text into words while preserving HTML structure
+		const tempDiv = document.createElement('div');
+		tempDiv.innerHTML = originalHTML;
+		
+		// Process text nodes and wrap individual words
+		function wrapWords(node) {
+			if (node.nodeType === Node.TEXT_NODE) {
+				const words = node.textContent.trim().split(/\s+/);
+				if (words.length > 1 || (words.length === 1 && words[0] !== '')) {
+					const fragment = document.createDocumentFragment();
+					words.forEach((word, index) => {
+						if (word) {
+							const span = document.createElement('span');
+							span.textContent = word + ' ';
+							fragment.appendChild(span);
+						}
+					});
+					node.parentNode.replaceChild(fragment, node);
+				}
+			} else if (node.nodeType === Node.ELEMENT_NODE) {
+				// For element nodes, process their children
+				const children = Array.from(node.childNodes);
+				children.forEach(child => wrapWords(child));
+			}
+		}
+		
+		wrapWords(tempDiv);
+		textElement.innerHTML = tempDiv.innerHTML;
+		
+		// Select all spans for animation
 		const spans = textElement.querySelectorAll("span");
+		
 		// First scatter them randomly along X-axis
 		gsap.set(spans, {
 			x: () => gsap.utils.random(-800, 800), // spread horizontally
 			opacity: 0
 		});
+		
 		// Animate them into correct alignment
 		gsap.to(spans, {
 			x: 0,
 			opacity: 1,
 			duration: 1.2,
 			stagger: 0.15, // delay per word
-			ease: "power3.out"
+			ease: "power3.out",
+			onComplete: function() {
+				// After the main animation completes, setup letter animation for highlight text
+				setupHighlightTextAnimation();
+			}
 		});
 	}
 });
+
+// Function to setup 3D cube rotation animation - Inline positioning
+function setupHighlightTextAnimation() {
+	const highlightText = document.querySelector('.highlight-text');
+	if (highlightText) {
+		setTimeout(() => {
+			const phrases = [
+				'"Choreographing interfaces into life."',
+				'"Creating digital experiences."',
+				'"Building interactive animations."'
+			];
+			
+			let currentIndex = 0;
+			let isAnimating = false;
+			
+			// Store the original text content
+			const originalText = highlightText.textContent;
+			
+			// Create the 3D container that will replace the text
+			const container = document.createElement('div');
+			container.className = 'text-3d-container';
+			
+			// Function to create cubes for current phrase
+			function createCubesForPhrase(phrase) {
+				container.innerHTML = '';
+				const cubes = [];
+				
+				for (let i = 0; i < phrase.length; i++) {
+					const char = phrase[i];
+					const charCube = document.createElement('div');
+					charCube.className = `char-cube ${char === ' ' ? 'space' : 'letter'}`;
+					
+					const cubeInner = document.createElement('div');
+					cubeInner.className = 'cube-inner';
+					
+					// Create 4 faces for the cube
+					const faces = ['front', 'top', 'back', 'bottom'];
+					faces.forEach(faceClass => {
+						const face = document.createElement('div');
+						face.className = `cube-face ${faceClass}`;
+						face.textContent = char === ' ' ? '\u00A0' : char;
+						cubeInner.appendChild(face);
+					});
+					
+					charCube.appendChild(cubeInner);
+					container.appendChild(charCube);
+					cubes.push({ element: charCube, inner: cubeInner });
+				}
+				
+				return cubes;
+			}
+			
+			// Initialize with first phrase
+			let cubes = createCubesForPhrase(phrases[currentIndex]);
+			
+			// Replace the text content with the 3D container
+			highlightText.innerHTML = '';
+			highlightText.appendChild(container);
+			
+			// Animation function
+			function rotateTo3D() {
+				if (isAnimating) return;
+				
+				isAnimating = true;
+				const nextIndex = (currentIndex + 1) % phrases.length;
+				
+				// Start rotation for each character with stagger
+				cubes.forEach((cube, index) => {
+					setTimeout(() => {
+						if (cube.inner) {
+							cube.inner.classList.add('rotating');
+						}
+					}, index * 25);
+				});
+				
+				// After rotation completes, update to new phrase
+				setTimeout(() => {
+					currentIndex = nextIndex;
+					cubes = createCubesForPhrase(phrases[currentIndex]);
+					
+					setTimeout(() => {
+						cubes.forEach(cube => {
+							if (cube.inner) {
+								cube.inner.classList.remove('rotating');
+							}
+						});
+						isAnimating = false;
+					}, 100);
+				}, 800);
+			}
+			
+			// Start the animation loop
+			setInterval(rotateTo3D, 4000);
+			
+		}, 3000);
+	}
+}
 // Custom typewriter animation for glass-title
 const typewriterText = document.getElementById('typewriter-text');
 const name1 = 'TANISHKA SHARMA';
