@@ -280,28 +280,41 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 });
 
-// Function to setup 3D cube rotation animation - Inline positioning
+// Function to setup 3D cube rotation animation - Fixed width to prevent layout shifts
 function setupHighlightTextAnimation() {
 	const highlightText = document.querySelector('.highlight-text');
 	if (highlightText) {
 		setTimeout(() => {
 			const phrases = [
 				'"Choreographing interfaces into life."',
-				'"Creating digital experiences."',
-				'"Building interactive animations."'
+				'"Creating digital experiences."      ',
+				'"Building interactive animations."   '
 			];
 			
 			let currentIndex = 0;
 			let isAnimating = false;
 			
-			// Store the original text content
-			const originalText = highlightText.textContent;
+			// Find the longest phrase to set consistent width
+			const maxLength = Math.max(...phrases.map(p => p.length));
 			
-			// Create the 3D container that will replace the text
+			// Pad all phrases to the same length with trailing spaces
+			const paddedPhrases = phrases.map(phrase => {
+				return phrase.padEnd(maxLength, ' ');
+			});
+			
+			// Create the 3D container with fixed width
 			const container = document.createElement('div');
 			container.className = 'text-3d-container';
 			
-			// Function to create cubes for current phrase
+			// Set fixed width based on the longest phrase
+			const charWidth = 0.7; // em per character
+			const spaceWidth = 0.4; // em per space
+			const totalWidth = maxLength * charWidth; // Approximate width in em
+			container.style.width = totalWidth + 'em';
+			container.style.minWidth = totalWidth + 'em';
+			container.style.maxWidth = totalWidth + 'em';
+			
+			// Function to create cubes for current phrase (using padded phrase)
 			function createCubesForPhrase(phrase) {
 				container.innerHTML = '';
 				const cubes = [];
@@ -331,8 +344,8 @@ function setupHighlightTextAnimation() {
 				return cubes;
 			}
 			
-			// Initialize with first phrase
-			let cubes = createCubesForPhrase(phrases[currentIndex]);
+			// Initialize with first padded phrase
+			let cubes = createCubesForPhrase(paddedPhrases[currentIndex]);
 			
 			// Replace the text content with the 3D container
 			highlightText.innerHTML = '';
@@ -343,7 +356,7 @@ function setupHighlightTextAnimation() {
 				if (isAnimating) return;
 				
 				isAnimating = true;
-				const nextIndex = (currentIndex + 1) % phrases.length;
+				const nextIndex = (currentIndex + 1) % paddedPhrases.length;
 				
 				// Start rotation for each character with stagger
 				cubes.forEach((cube, index) => {
@@ -354,11 +367,26 @@ function setupHighlightTextAnimation() {
 					}, index * 25);
 				});
 				
-				// After rotation completes, update to new phrase
+				// After rotation starts, update the faces with new text
 				setTimeout(() => {
-					currentIndex = nextIndex;
-					cubes = createCubesForPhrase(phrases[currentIndex]);
+					const newPhrase = paddedPhrases[nextIndex];
 					
+					// Update each cube's faces with new characters
+					cubes.forEach((cube, index) => {
+						const newChar = newPhrase[index] || ' ';
+						const faces = cube.inner.querySelectorAll('.cube-face');
+						
+						faces.forEach(face => {
+							face.textContent = newChar === ' ' ? '\u00A0' : newChar;
+						});
+						
+						// Update cube class for spacing
+						cube.element.className = `char-cube ${newChar === ' ' ? 'space' : 'letter'}`;
+					});
+					
+					currentIndex = nextIndex;
+					
+					// Remove rotation classes after animation
 					setTimeout(() => {
 						cubes.forEach(cube => {
 							if (cube.inner) {
@@ -367,7 +395,7 @@ function setupHighlightTextAnimation() {
 						});
 						isAnimating = false;
 					}, 100);
-				}, 800);
+				}, 400); // Update faces mid-rotation
 			}
 			
 			// Start the animation loop
