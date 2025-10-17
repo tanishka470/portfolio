@@ -38,9 +38,9 @@
   height: 24px;
 }
 
-/* 3D Cube Animation - Exact same size as original text */
+/* 3D Cube Animation - Stays inline within paragraph */
 .highlight-text {
-  font-size: 1em !important; /* Same as paragraph text */
+  font-size: 1.4em !important; /* Larger but inline */
   font-weight: 800 !important;
   color: rgba(0,255,136,0.9) !important;
   letter-spacing: 0.03em !important;
@@ -49,15 +49,14 @@
   position: relative !important;
 }
 
-/* 3D Text Container - Fixed width to prevent any size changes */
+/* 3D Text Container - Inline block to stay within paragraph flow */
 .text-3d-container {
   display: inline-block !important;
   vertical-align: baseline !important;
-  height: 1.2em !important;
-  overflow: hidden !important;
   white-space: nowrap !important;
+  overflow: hidden !important;
+  height: 1.2em !important;
   box-sizing: border-box !important;
-  font-size: 1em !important; /* Match paragraph font size exactly */
 }
 
 /* Character Cube Styling - Fixed width to prevent shifts */
@@ -90,7 +89,7 @@
   transform: rotateX(-90deg);
 }
 
-/* Cube Faces - Same size as paragraph text */
+/* Cube Faces - Match container size */
 .cube-face {
   position: absolute;
   width: 100%;
@@ -98,7 +97,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1em; /* Match paragraph font size */
+  font-size: 1.4em; /* Match highlight text size */
   font-weight: 800;
   color: rgba(0,255,136,0.9);
   backface-visibility: hidden;
@@ -119,10 +118,53 @@
 }
 
 .cube-face.bottom {
-  transform: rotateX(-90deg) translateZ(0.6em);
+	transform: rotateX(-90deg) translateZ(0.6em);
 }
 
-/* Ensure contact section uses terminal font */
+/* Contact Email Styling */
+.contact-email {
+	font-family: 'JetBrains Mono', monospace;
+	font-size: 1em;
+	color: rgba(0,255,136,0.8);
+	margin-top: 16px;
+	margin-bottom: 0;
+	text-align: justify;
+	line-height: 1.6;
+	letter-spacing: 0.02em;
+	cursor: pointer;
+	transition: color 0.3s ease, text-shadow 0.3s ease;
+	user-select: none;
+	position: relative;
+}
+
+.contact-email:hover {
+	color: rgba(0,255,136,1);
+	text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+}
+
+/* Copy notification popup */
+.copy-notification {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background: rgba(0, 0, 0, 0.9);
+	color: rgba(0,255,136,1);
+	padding: 12px 24px;
+	border-radius: 8px;
+	font-family: 'JetBrains Mono', monospace;
+	font-size: 14px;
+	font-weight: 600;
+	z-index: 1000;
+	opacity: 0;
+	transition: opacity 0.3s ease;
+	backdrop-filter: blur(10px);
+	box-shadow: 0 4px 20px rgba(0, 255, 136, 0.2);
+}
+
+.copy-notification.show {
+	opacity: 1;
+}/* Ensure contact section uses terminal font */
 .contact-section, .contact-section * {
 	font-family: 'JetBrains Mono', 'Courier New', 'Monaco', 'Menlo', monospace !important;
 }

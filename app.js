@@ -561,3 +561,74 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 });
+
+// Function to copy email to clipboard and show notification
+function copyEmail() {
+	const email = 'tanishka047@gmail.com';
+	
+	// Copy to clipboard using the modern Clipboard API
+	if (navigator.clipboard && window.isSecureContext) {
+		navigator.clipboard.writeText(email).then(() => {
+			showCopyNotification();
+		}).catch(() => {
+			// Fallback for older browsers
+			fallbackCopyTextToClipboard(email);
+		});
+	} else {
+		// Fallback for older browsers or non-secure contexts
+		fallbackCopyTextToClipboard(email);
+	}
+}
+
+// Fallback copy method for older browsers
+function fallbackCopyTextToClipboard(text) {
+	const textArea = document.createElement('textarea');
+	textArea.value = text;
+	textArea.style.position = 'fixed';
+	textArea.style.left = '-999999px';
+	textArea.style.top = '-999999px';
+	document.body.appendChild(textArea);
+	textArea.focus();
+	textArea.select();
+	
+	try {
+		document.execCommand('copy');
+		showCopyNotification();
+	} catch (err) {
+		console.log('Unable to copy email');
+	}
+	
+	document.body.removeChild(textArea);
+}
+
+// Show copy notification popup
+function showCopyNotification() {
+	// Remove any existing notification
+	const existingNotification = document.querySelector('.copy-notification');
+	if (existingNotification) {
+		existingNotification.remove();
+	}
+	
+	// Create notification element
+	const notification = document.createElement('div');
+	notification.className = 'copy-notification';
+	notification.textContent = 'Email copied to clipboard!';
+	
+	// Add to body
+	document.body.appendChild(notification);
+	
+	// Show notification
+	setTimeout(() => {
+		notification.classList.add('show');
+	}, 10);
+	
+	// Hide and remove notification after 2 seconds
+	setTimeout(() => {
+		notification.classList.remove('show');
+		setTimeout(() => {
+			if (notification.parentNode) {
+				notification.parentNode.removeChild(notification);
+			}
+		}, 300);
+	}, 2000);
+}
