@@ -634,11 +634,10 @@
 	backdrop-filter: blur(16px) saturate(160%);
 	-webkit-backdrop-filter: blur(16px) saturate(160%);
 	border: 2.5px solid rgba(0,255,136,0.32);
-	margin: 0.7rem 6vw 2rem 6vw;
+	margin: 5vh 6vw 5vh 6vw; /* Equal top and bottom margins using viewport height */
 	padding: 2rem 4rem 4rem 4rem;
-	min-height: calc(100vh - 4rem);
+	min-height: calc(90vh - 4rem); /* Adjusted height for centered positioning */
 	position: relative;
-	margin-top: 70px;
 	z-index: 1;
 	box-sizing: border-box;
 	overflow: visible;
