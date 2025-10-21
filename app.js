@@ -474,8 +474,8 @@ document.addEventListener("DOMContentLoaded", function() {
   const floatData = [];
 
   floats.forEach((float, index) => {
-    // Much faster speeds and directions
-    const baseSpeed = Math.random() * 4 + 2.5; // 2.5 to 6.5 - much faster!
+    // Slower, smoother speeds
+    const baseSpeed = Math.random() * 1.5 + 0.8; // 0.8 to 2.3 - much slower!
     const angle = (Math.random() * Math.PI * 2); // Random angle in radians
     const dx = Math.cos(angle) * baseSpeed;
     const dy = Math.sin(angle) * baseSpeed;
