@@ -18,17 +18,85 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 	});
 });
-// CONTACT SECTION LOGIC
+// CONTACT SECTION LOGIC (EmailJS)
 document.addEventListener('DOMContentLoaded', function() {
-  const contactForm = document.getElementById("contactForm");
-  if (contactForm) {
-    contactForm.addEventListener("submit", function(e) {
-      e.preventDefault();
-      const name = document.getElementById("name").value;
-      const email = document.getElementById("email").value;
-      const message = document.getElementById("message").value;
-      alert(`Message Sent!\n\nName: ${name}\nEmail: ${email}\nMessage: ${message}`);
-    });
+	// Configure your EmailJS keys
+	const EMAILJS_PUBLIC_KEY = "lotoLHOxxhuQ_7JeQ";
+	const EMAILJS_SERVICE_ID = "service_1";
+	const EMAILJS_TEMPLATE_ID = "template_qzbjxdq";
+
+	// Initialize EmailJS if the SDK is loaded and a real public key is provided
+	if (window.emailjs && EMAILJS_PUBLIC_KEY && !EMAILJS_PUBLIC_KEY.startsWith("YOUR_")) {
+		emailjs.init(EMAILJS_PUBLIC_KEY);
+	}
+
+	const contactForm = document.getElementById("contactForm");
+	if (contactForm) {
+		contactForm.addEventListener("submit", function(e) {
+			e.preventDefault();
+			const name = document.getElementById("name").value.trim();
+			const email = document.getElementById("email").value.trim();
+			const message = document.getElementById("message").value.trim();
+			const statusEl = document.getElementById("formStatus");
+			const submitBtn = document.getElementById("scramble-btn");
+
+			function setStatus(text, isError = false) {
+				if (!statusEl) return;
+				statusEl.textContent = text;
+				if (isError) {
+					statusEl.classList.add("error");
+				} else {
+					statusEl.classList.remove("error");
+				}
+			}
+
+			// Basic validation
+			if (!name || !email || !message) {
+				setStatus("Please fill in all fields.", true);
+				return;
+			}
+			const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+			if (!emailRegex.test(email)) {
+				setStatus("Please enter a valid email address.", true);
+				return;
+			}
+
+			if (!window.emailjs) {
+				setStatus("Email service not loaded. Check your internet connection.", true);
+				return;
+			}
+			if (
+				EMAILJS_PUBLIC_KEY.startsWith("YOUR_") ||
+				EMAILJS_SERVICE_ID.startsWith("YOUR_") ||
+				EMAILJS_TEMPLATE_ID.startsWith("YOUR_")
+			) {
+				setStatus("Email service not configured yet. Add your EmailJS keys in app.js.", true);
+				return;
+			}
+
+			submitBtn.disabled = true;
+			submitBtn.textContent = "Sending…";
+			setStatus("Sending your message…");
+
+			emailjs
+				.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+					name: name,
+					email: email,
+					message: message
+				})
+				.then(function() {
+					setStatus("Thanks! Your message has been sent.");
+					contactForm.reset();
+				})
+				.catch(function(err) {
+					console.error("EmailJS Error:", err);
+					setStatus("Couldn't send your message. Please try again.", true);
+				})
+				.finally(function() {
+					submitBtn.disabled = false;
+					submitBtn.textContent = "SEND MESSAGE";
+				});
+		});
     // GSAP Scramble Effect for Contact Me (always run after plugin registration)
 					// Custom scramble text animation for #contact-text
 						const scrambleTarget = document.getElementById("contact-text");
