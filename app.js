@@ -89,8 +89,15 @@ document.addEventListener('DOMContentLoaded', function() {
 					contactForm.reset();
 				})
 				.catch(function(err) {
+					// Log full error and show a more detailed message to help debugging
 					console.error("EmailJS Error:", err);
-					setStatus("Couldn't send your message. Please try again.", true);
+					try {
+						// Some EmailJS errors include a textual response
+						const detail = err && (err.text || err.statusText || err.message);
+						setStatus("Couldn't send your message. " + (detail ? detail : "Please try again."), true);
+					} catch (e) {
+						setStatus("Couldn't send your message. Please try again.", true);
+					}
 				})
 				.finally(function() {
 					submitBtn.disabled = false;
