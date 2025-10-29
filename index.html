@@ -101,14 +101,13 @@
                 </svg>
             </div>
             
-                        <!-- Notebook-style Project Section (inserted) -->
+                        <!-- Notebook-style Project Section  -->
                         <style>
                             @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
                             * { margin: 0; padding: 0; box-sizing: border-box; }
-                              /* larger notebook pages (increased per user request) */
+                             
                               .notebook-container { display: flex; align-items: stretch; max-width: 1300px; width: 100%; box-shadow: 0 30px 90px rgba(0,0,0,0.98); border-radius: 14px; overflow: visible; margin: 36px 0; }
-                              /* bring pages slightly closer together with small negative side margins */
-                                                                                            /* make pages more glassy-green: stronger green tint, glow and ruled lines */
+                            
                                                                                             .page { 
                                                                                                 flex: 1; 
                                                                                                 background: linear-gradient(180deg, rgba(0,255,136,0.08), rgba(0,255,136,0.04));
@@ -124,7 +123,7 @@
                                                                                                 margin: 0; 
                                                                                                 color: rgba(200,255,220,0.95);
                                                                                             }
-                                                                                                                            /* subtle ruled-paper lines on the page, tinted green */
+                                                                                                                            
                                                                                             .page::before {
                                                                                                 content: '';
                                                                                                 position: absolute;
@@ -135,29 +134,64 @@
                                                                                                 mix-blend-mode: overlay;
                                                                                             }
 
-                                                                                                                            /* project rectangle placeholders inside pages */
+                                                                                                                            
                                                                                                                                                                                             .note-rect{
-                                                                                                                                                                                                position: absolute;
-                                                                                                                                                                                                width: 380px;
-                                                                                                                                                                                                height: 150px;
-                                                                                                                                border-radius: 12px;
-                                                                                                                                background: linear-gradient(180deg, rgba(0,255,136,0.06), rgba(0,255,136,0.03));
-                                                                                                                                border: 1px solid rgba(0,255,136,0.12);
-                                                                                                                                box-shadow: 0 8px 24px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.02);
-                                                                                                                                backdrop-filter: blur(4px);
-                                                                                                                                -webkit-backdrop-filter: blur(4px);
-                                                                                                                                transition: transform 220ms ease, box-shadow 220ms ease;
-                                                                                                                                overflow: hidden;
-                                                                                                                            }
-                                                                                                                            .note-rect::after{ /* subtle title line */
-                                                                                                                                content: '';
-                                                                                                                                display: block;
-                                                                                                                                height: 12px;
-                                                                                                                                margin: 12px 16px 0 16px;
-                                                                                                                                background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-                                                                                                                                border-radius: 6px;
-                                                                                                                            }
-                                                                                                                            .note-rect:hover{ transform: translateY(-6px); box-shadow: 0 18px 40px rgba(0,0,0,0.55); }
+                                                                                                                                                                                                                                                                                                position: absolute;
+                                                                                                                                                                                                                                                                                                width: 380px;
+                                                                                                                                                                                                                                                                                                height: 150px;
+                                                                                                                                                                                                                                border-radius: 12px;
+                                                                                                                                                                                                                                background: linear-gradient(180deg, rgba(0,255,136,0.06), rgba(0,255,136,0.03));
+                                                                                                                                                                                                                                border: 1px solid rgba(0,255,136,0.12);
+                                                                                                                                                                                                                                box-shadow: 0 8px 24px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.02);
+                                                                                                                                                                                                                                backdrop-filter: blur(4px);
+                                                                                                                                                                                                                                -webkit-backdrop-filter: blur(4px);
+                                                                                                                                                                                                transition: transform 220ms ease, box-shadow 220ms ease;
+                                                                                                                                                                                                
+                                                                                                                                                                                                overflow: visible;
+                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                            
+                                                                                                                                                                                                                            .note-rect::before{
+                                                                                                                                                                                                                               
+                                                                                                                                                                                                                                content: attr(data-index) ".";
+                                                                                                                                                                                                                                position: absolute;
+                                                                                                                                                                                                                                font-weight: 800;
+                                                                                                                                                                                                                                color: #ffffff;
+                                                                                                                                                                                                                                font-size: 20px;
+                                                                                                                                                                                                                                line-height: 1;
+                                                                                                                                                                                                                                display: inline-block;
+                                                                                                                                                                                                                                width: 28px;
+                                                                                                                                                                                                                                text-align: right;
+                                                                                                                                                                                                                                pointer-events: none;
+                                                                                                                                                                                                                                z-index: 80;
+                                                                                                                                                                                                                                text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                            /* horizontal offsets: push left-side numbers left, right-side numbers right */
+                                                                                                                                                                                                                                                                     /* place serial numbers just outside each card but still inside the page
+                                                                                                                                                                                                                                                                         use a small negative offset so they sit between the page padding and card */
+                                                                                                                                                                                                                                                                     .rect-top-left::before,
+                                                                                                                                                                                                                                                                     .rect-bottom-left::before { left: -28px; right: auto; text-align: right; }
+                                                                                                                                                                                                                                                                     .rect-top-right::before,
+                                                                                                                                                                                                                                                                     .rect-bottom-right::before { right: -28px; left: auto; text-align: left; width: auto; }
+                                                                                                                                                                                                                                                                        /* force specific cards (2 and 4) to use left-side numbering inside the page */
+                                                                                                                                                                                                                                                                        .note-rect[data-index="2"]::before,
+                                                                                                                                                                                                                                                                        .note-rect[data-index="4"]::before {
+                                                                                                                                                                                                                                                                            /* position like the top cards so they align vertically with 1 and 3 */
+                                                                                                                                                                                                                                                                            left: -28px; right: auto; text-align: right;
+                                                                                                                                                                                                                                                                            top: 48px; bottom: auto;
+                                                                                                                                                                                                                                                                            transform: translateY(-20px);
+                                                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                            /* vertical alignment to match the card top/bottom offsets */
+                                                                                                                                                                                                                            .rect-top-left::before, .rect-top-right::before { top: 48px; transform: translateY(-12px); }
+                                                                                                                                                                                                                            .rect-bottom-left::before, .rect-bottom-right::before { bottom: 48px; top: auto; transform: translateY(-12px); }
+                                                                                                                                                                                                                            .note-rect::after{ /* subtle title line */
+                                                                                                                                                                                                                                content: '';
+                                                                                                                                                                                                                                display: block;
+                                                                                                                                                                                                                                height: 12px;
+                                                                                                                                                                                                                                margin: 12px 16px 0 16px;
+                                                                                                                                                                                                                                background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+                                                                                                                                                                                                                                border-radius: 6px;
+                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                            .note-rect:hover{ transform: translateY(-6px); box-shadow: 0 18px 40px rgba(0,0,0,0.55); }
 
                                                                                                                             /* positions for the four rectangles */
                                                                                                                               /* page-specific uniform placements: left page uses left-aligned rectangles, right page uses right-aligned rectangles */
@@ -170,6 +204,9 @@
                                                                                                                                 .note-rect{ width: calc(100% - 64px); height: 120px; left: 32px !important; right: 32px !important; }
                                                                                                                                 .rect-top-left, .rect-top-right{ top: 28px; }
                                                                                                                                 .rect-bottom-left, .rect-bottom-right{ bottom: 28px; }
+                                                                                                                                /* on narrow screens place serials above each card (so they remain outside but readable) */
+                                                                                                                                .note-rect::before{ top: -18px; left: 32px; font-size: 16px; padding: 0; width: auto; text-align: left; }
+                                                                                                                                .rect-top-right::before, .rect-bottom-right::before { right: 32px; left: auto; }
                                                                                                                             }
                               .page-left { margin-right: -8px; }
                               .page-right { margin-left: -8px; }
@@ -278,16 +315,16 @@
                             <!-- Left Page -->
                             <div class="page page-left">
                                 <!-- left page: project placeholders -->
-                                <a href="#" class="note-rect rect-top-left" aria-label="Project 1" title="Project 1"></a>
-                                <a href="#" class="note-rect rect-bottom-right" aria-label="Project 2" title="Project 2"></a>
+                                <a href="#" class="note-rect rect-top-left" data-index="1" aria-label="Project 1" title="Project 1"></a>
+                                <a href="#" class="note-rect rect-bottom-right" data-index="2" aria-label="Project 2" title="Project 2"></a>
                             </div>
                             <!-- Black Spiral Binding -->
                             <div class="spiral-binding"></div>
                             <!-- Right Page -->
                             <div class="page page-right">
                                 <!-- right page: project placeholders -->
-                                <a href="#" class="note-rect rect-top-left" aria-label="Project 3" title="Project 3"></a>
-                                <a href="#" class="note-rect rect-bottom-right" aria-label="Project 4" title="Project 4"></a>
+                                <a href="#" class="note-rect rect-top-left" data-index="3" aria-label="Project 3" title="Project 3"></a>
+                                <a href="#" class="note-rect rect-bottom-right" data-index="4" aria-label="Project 4" title="Project 4"></a>
                             </div>
                         </div>
             <!-- Skill Section -->
