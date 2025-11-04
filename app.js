@@ -89,10 +89,10 @@ document.addEventListener('DOMContentLoaded', function() {
 					contactForm.reset();
 				})
 				.catch(function(err) {
-					// Log full error and show a more detailed message to help debugging
+				
 					console.error("EmailJS Error:", err);
 					try {
-						// Some EmailJS errors include a textual response
+					
 						const detail = err && (err.text || err.statusText || err.message);
 						setStatus("Couldn't send your message. " + (detail ? detail : "Please try again."), true);
 					} catch (e) {
@@ -104,14 +104,13 @@ document.addEventListener('DOMContentLoaded', function() {
 					submitBtn.textContent = "SEND MESSAGE";
 				});
 		});
-    // GSAP Scramble Effect for Contact Me (always run after plugin registration)
-					// Custom scramble text animation for #contact-text
+  
 						const scrambleTarget = document.getElementById("contact-text");
 						if (scrambleTarget) {
 							const original = "CONTACT ME.";
 							const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
 							let frame = 0;
-							let direction = 1; // 1 = scramble in, -1 = scramble out
+							let direction = 1; 
 							let isPaused = false;
 							function scramble() {
 								let output = "";
