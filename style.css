@@ -563,7 +563,7 @@
 	right: 0;
 	display: flex;
 	gap: 8px;
-	z-index: 10;
+	z-index: 10050; /* bring nav buttons above other glass content */
 	padding: 8px 8px 0 0;
 }
 
@@ -591,6 +591,7 @@
 	outline: 1.2px solid rgba(0,255,136,0.32);
 	transition: background 0.18s, outline 0.18s;
 	cursor: pointer;
+	pointer-events: auto; /* ensure buttons accept pointer events */
 }
 .glass-action-btn:hover {
 	background: rgba(0, 255, 136, 0.32);
@@ -652,7 +653,7 @@
 	padding: 2rem 4rem 4rem 4rem;
 	min-height: calc(90vh - 4rem); /* Adjusted height for centered positioning */
 	position: relative;
-	z-index: 1;
+	z-index: 10060; /* raised so nav buttons inside can sit above other page elements */
 	box-sizing: border-box;
 	overflow: visible;
 	border-radius: 1.5rem;
@@ -724,6 +725,7 @@ html {
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
+	scroll-behavior: smooth; /* enable smooth native anchor scrolling */
 }
 
 .contour-bg {

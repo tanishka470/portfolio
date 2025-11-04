@@ -6,17 +6,58 @@ document.addEventListener('DOMContentLoaded', function() {
 		{ btn: 'btn-experience', section: 'experience' },
 		{ btn: 'btn-contact', section: 'contact' }
 	];
-	navMap.forEach(({ btn, section }) => {
-		const button = document.getElementById(btn);
-		const target = document.getElementById(section);
-		if (button && target) {
-			button.addEventListener('click', () => {
-				target.scrollIntoView({ behavior: 'smooth' });
-			});
-			// Optional: Add hover effect for pointer
-			button.style.cursor = 'pointer';
+		navMap.forEach(({ btn, section }) => {
+			const button = document.getElementById(btn);
+			const target = document.getElementById(section);
+			if (button && target) {
+				console.log('nav: attaching', btn, '->', section);
+				button.addEventListener('click', (e) => {
+					console.log('nav: clicked', btn, 'targetId=', section);
+					// Prevent default behavior and smoothly scroll with a small offset
+					// so the target heading isn't hidden behind any overlapping content.
+					e.preventDefault && e.preventDefault();
+					const TOP_PADDING = 64; // px — adjust if you have a fixed header
+					const rect = target.getBoundingClientRect();
+					const targetY = window.pageYOffset + rect.top - TOP_PADDING;
+					window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
+				});
+				// Optional: Add hover effect for pointer
+				button.style.cursor = 'pointer';
+			} else {
+				console.warn('nav: missing element', btn, 'or target', section);
+			}
+		});
+});
+// Delegated handler as a fallback in case direct listeners are blocked
+document.addEventListener('click', function(e) {
+	const btn = e.target.closest && e.target.closest('.glass-action-btn');
+	if (!btn) return;
+	try {
+		console.log('nav-delegate: clicked', btn.id || btn.className);
+		// Map known button ids to section ids
+		const map = {
+			'btn-projects': 'projects',
+			'btn-skills': 'skills',
+			'btn-experience': 'experience',
+			'btn-contact': 'contact'
+		};
+		const targetId = map[btn.id] || btn.getAttribute('data-target');
+		if (!targetId) {
+			console.warn('nav-delegate: no target for', btn.id);
+			return;
 		}
-	});
+		const target = document.getElementById(targetId);
+		if (!target) {
+			console.warn('nav-delegate: target element not found', targetId);
+			return;
+		}
+		const TOP_PADDING = 64;
+		const rect = target.getBoundingClientRect();
+		const targetY = window.pageYOffset + rect.top - TOP_PADDING;
+		window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
+	} catch (err) {
+		console.error('nav-delegate error', err);
+	}
 });
 // CONTACT SECTION LOGIC (EmailJS)
 document.addEventListener('DOMContentLoaded', function() {
