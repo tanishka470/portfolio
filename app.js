@@ -10,22 +10,44 @@ document.addEventListener('DOMContentLoaded', function() {
 			const button = document.getElementById(btn);
 			const target = document.getElementById(section);
 			if (button && target) {
-				console.log('nav: attaching', btn, '->', section);
-				button.addEventListener('click', (e) => {
-					console.log('nav: clicked', btn, 'targetId=', section);
-					// Prevent default behavior and smoothly scroll with a small offset
-					// so the target heading isn't hidden behind any overlapping content.
-					e.preventDefault && e.preventDefault();
-					const TOP_PADDING = 64; // px — adjust if you have a fixed header
-					const rect = target.getBoundingClientRect();
-					const targetY = window.pageYOffset + rect.top - TOP_PADDING;
-					window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
-				});
-				// Optional: Add hover effect for pointer
-				button.style.cursor = 'pointer';
-			} else {
-				console.warn('nav: missing element', btn, 'or target', section);
-			}
+						console.log('nav: attaching', btn, '->', section);
+						button.addEventListener('click', (e) => {
+							console.log('nav: clicked', btn, 'targetId=', section);
+							e.preventDefault && e.preventDefault();
+
+							// Find nearest scrollable ancestor for the target (so we scroll inside containers like .glass-container)
+							function findScrollableAncestor(el) {
+								let node = el.parentElement;
+								while (node && node !== document.documentElement) {
+									const style = window.getComputedStyle(node);
+									const overflowY = style.overflowY;
+									if ((overflowY === 'auto' || overflowY === 'scroll') && node.scrollHeight > node.clientHeight) {
+										return node;
+									}
+									node = node.parentElement;
+								}
+								return null;
+							}
+
+							const TOP_PADDING = 64; // px — adjust if you have a fixed header
+							const scrollParent = findScrollableAncestor(target);
+							if (scrollParent) {
+								// compute offsetTop relative to the scrollParent
+								const parentRect = scrollParent.getBoundingClientRect();
+								const targetRect = target.getBoundingClientRect();
+								const offset = (targetRect.top - parentRect.top) + scrollParent.scrollTop - TOP_PADDING;
+								scrollParent.scrollTo({ top: Math.max(0, offset), behavior: 'smooth' });
+							} else {
+								const rect = target.getBoundingClientRect();
+								const targetY = window.pageYOffset + rect.top - TOP_PADDING;
+								window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
+							}
+						});
+						// Optional: Add hover effect for pointer
+						button.style.cursor = 'pointer';
+					} else {
+						console.warn('nav: missing element', btn, 'or target', section);
+					}
 		});
 });
 // Delegated handler as a fallback in case direct listeners are blocked
@@ -46,15 +68,36 @@ document.addEventListener('click', function(e) {
 			console.warn('nav-delegate: no target for', btn.id);
 			return;
 		}
-		const target = document.getElementById(targetId);
-		if (!target) {
-			console.warn('nav-delegate: target element not found', targetId);
-			return;
-		}
-		const TOP_PADDING = 64;
-		const rect = target.getBoundingClientRect();
-		const targetY = window.pageYOffset + rect.top - TOP_PADDING;
-		window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
+			const target = document.getElementById(targetId);
+			if (!target) {
+				console.warn('nav-delegate: target element not found', targetId);
+				return;
+			}
+			// same scroll logic as the primary handler: try to find a scrollable ancestor
+			function findScrollableAncestor(el) {
+				let node = el.parentElement;
+				while (node && node !== document.documentElement) {
+					const style = window.getComputedStyle(node);
+					const overflowY = style.overflowY;
+					if ((overflowY === 'auto' || overflowY === 'scroll') && node.scrollHeight > node.clientHeight) {
+						return node;
+					}
+					node = node.parentElement;
+				}
+				return null;
+			}
+			const TOP_PADDING = 64;
+			const scrollParent = findScrollableAncestor(target);
+			if (scrollParent) {
+				const parentRect = scrollParent.getBoundingClientRect();
+				const targetRect = target.getBoundingClientRect();
+				const offset = (targetRect.top - parentRect.top) + scrollParent.scrollTop - TOP_PADDING;
+				scrollParent.scrollTo({ top: Math.max(0, offset), behavior: 'smooth' });
+			} else {
+				const rect = target.getBoundingClientRect();
+				const targetY = window.pageYOffset + rect.top - TOP_PADDING;
+				window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
+			}
 	} catch (err) {
 		console.error('nav-delegate error', err);
 	}
