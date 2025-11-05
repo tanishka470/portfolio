@@ -982,7 +982,8 @@ html {
 
 .exp-card *,
 .exp-content * {
-	font-family: 'Montserrat', sans-serif !important;
+	/* Use the site's terminal font here so experience cards match the rest of the site */
+	font-family: 'JetBrains Mono', 'Courier New', monospace !important;
 	color: #fff !important;
 	font-weight: 700 !important;
 }
@@ -1004,7 +1005,7 @@ html {
 	letter-spacing: 2px;
 	color: white !important;
 	text-shadow: 0 2px 12px rgba(0,255,136,0.10);
-    font-family: 'Montserrat', sans-serif !important;
+	font-family: 'JetBrains Mono', 'Courier New', monospace !important;
 }
 
 .experience-cards {
@@ -1206,6 +1207,19 @@ html {
 	max-height: 100%;
 }
 
+/* Justify the paragraph content inside experience cards for cleaner typography */
+.exp-card .exp-content {
+	text-align: left; /* headings and badges align left by default */
+}
+.exp-card .exp-content p,
+.exp-card .exp-content .desc,
+.exp-card .exp-content .role {
+	text-align: justify;
+}
+.exp-card .exp-content h3 {
+	text-align: left; /* keep heading aligned left for readability */
+}
+
 /* Smooth settling for content when the card changes shape on hover
 	 - transition max-width and padding so text reflows smoothly
 	 - use will-change to hint the browser for smoother animations
@@ -1248,16 +1262,8 @@ html {
 	text-shadow: 0 1px 0 rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.45);
 }
 .exp-card .exp-badge::before {
-	content: '';
-	position: absolute;
-	left: 0; right: 0; bottom: 0; top: 0;
-	background: linear-gradient(180deg, rgba(0,255,136,0.95), rgba(124,255,179,0.95));
-	transform-origin: bottom;
-	transform: scaleY(0);
-	z-index: 0; /* behind the badge text */
-	transition: transform 520ms cubic-bezier(.2,.9,.2,1);
-	pointer-events: none;
-	opacity: 0.98; /* slightly less than fully opaque so text contrast remains strong */
+	/* pseudo-element fill replaced by background-layer animation below; hide legacy pseudo */
+	content: none !important;
 }
 .exp-card .exp-badge > * { z-index: 2; position: relative; }
 .exp-card .exp-badge span, .exp-card .exp-badge { z-index: 2; position: relative; }
@@ -1265,7 +1271,8 @@ html {
 /* Hover on badge or card triggers the fill */
 .exp-card .exp-badge:hover::before,
 .exp-card:hover .exp-badge::before {
-	transform: scaleY(1);
+	/* ensure legacy pseudo stays hidden */
+	content: none !important;
 }
 
 /* When filled, invert the text color for legibility */
@@ -1347,13 +1354,23 @@ body .experience-cards .exp-card .exp-content .exp-badge {
 }
 
 /* Make sure the badge pseudo-element fill remains behind this background and text */
-body .experience-cards .exp-card .exp-content .exp-badge::before {
-	z-index: 1 !important; /* behind the text but above the badge base */
-	opacity: 0.0 !important; /* start fully invisible so base background shows */
+/* Replace the pseudo-element fill with a layered background approach so the
+   green fill always stays behind the text (backgrounds are painted below text).
+   Layer 0: subtle base background (light). Layer 1: green fill which grows from 0% to 100% height. */
+body .experience-cards .exp-card .exp-content .exp-badge {
+	background-image: linear-gradient(90deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06)),
+					  linear-gradient(180deg, rgba(0,255,136,0.98), rgba(124,255,179,0.98));
+	background-size: 100% 100%, 100% 0%;
+	background-position: center center, center bottom;
+	background-repeat: no-repeat, no-repeat;
+	transition: background-size 520ms cubic-bezier(.2,.9,.2,1), background-position 520ms ease;
 }
-body .experience-cards .exp-card .exp-content .exp-badge:hover::before,
-body .experience-cards .exp-card:hover .exp-badge::before {
-	opacity: 0.98 !important; /* animate opacity together with scale to reveal fill */
+
+/* On hover reveal the green fill by expanding the second background layer */
+body .experience-cards .exp-card .exp-content .exp-badge:hover,
+body .experience-cards .exp-card:hover .exp-badge {
+	background-size: 100% 100%, 100% 100% !important;
+	background-position: center center, center center !important;
 }
 .exp-card .exp-content h3 {
 	margin: 0;
@@ -1367,6 +1384,36 @@ body .experience-cards .exp-card:hover .exp-badge::before {
 	font-weight: 700;
 	font-size: 0.95rem;
 }
+
+/* Final override: ensure .exp-badge is always visible and the fill stays behind text.
+	 Placed at the end of the stylesheet to outrank other rules. */
+.exp-card .exp-badge {
+	display: inline-block !important;
+	position: relative !important;
+	z-index: 9999 !important;
+	isolation: isolate !important;
+	color: #ffffff !important;
+	-webkit-text-fill-color: #ffffff !important;
+	background-image: linear-gradient(90deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06)),
+										linear-gradient(180deg, rgba(0,255,136,0.98), rgba(124,255,179,0.98)) !important;
+	background-size: 100% 100%, 100% 0% !important;
+	background-position: center center, center bottom !important;
+	background-repeat: no-repeat, no-repeat !important;
+	padding: 6px 12px !important;
+	border-radius: 999px !important;
+	border: 1px solid rgba(0,255,136,0.12) !important;
+	box-shadow: 0 6px 18px rgba(0,0,0,0.25) !important;
+	transition: background-size 520ms cubic-bezier(.2,.9,.2,1), background-position 520ms ease !important;
+	will-change: background-size, background-position !important;
+	-webkit-backface-visibility: hidden !important;
+	backface-visibility: hidden !important;
+	text-shadow: 0 1px 0 rgba(0,0,0,0.28) !important;
+}
+.exp-card .exp-badge:hover,
+.exp-card:hover .exp-badge {
+	background-size: 100% 100%, 100% 100% !important;
+}
+
 .exp-card .exp-content .desc {
 	margin: 0;
 	color: #dff8e6;
@@ -1632,4 +1679,121 @@ body .experience-cards .exp-card:hover .exp-badge::before {
 .exp-card .exp-content .desc::-webkit-scrollbar {
 	display: none !important;
 }
+
+/* ------------------------------------------------------------------
+	 Badge modal + confetti styles (appended by assistant)
+------------------------------------------------------------------ */
+.badge-modal {
+	position: fixed;
+	inset: 0;
+	display: none; /* toggled by JS */
+	align-items: center;
+	justify-content: center;
+	z-index: 2000;
+}
+.badge-modal[aria-hidden="false"] { display: flex; }
+.badge-modal__backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(0,0,0,0.58);
+	backdrop-filter: blur(6px) saturate(120%);
+}
+.badge-modal__box {
+	position: relative;
+	width: min(680px, 92%);
+	max-height: 80vh;
+	overflow: auto;
+	background: linear-gradient(180deg, rgba(2,8,6,0.95), rgba(4,12,10,0.98));
+	border: 1px solid rgba(0,255,136,0.12);
+	box-shadow: 0 30px 80px rgba(0,0,0,0.8), 0 0 60px rgba(0,255,136,0.03) inset;
+	padding: 20px 20px 16px 20px;
+	border-radius: 12px;
+	z-index: 2010;
+	color: #fff;
+	font-family: 'JetBrains Mono', monospace;
+}
+.badge-modal__close {
+	position: absolute;
+	top: 12px;
+	right: 12px;
+	background: transparent;
+	color: #fff;
+	border: 0;
+	font-size: 18px;
+	cursor: pointer;
+	padding: 6px 8px;
+}
+.badge-modal__head { display:flex; gap:12px; align-items:center; margin-bottom:6px; }
+.modal-badge-preview {
+	min-width: 86px; height: 32px; display:inline-block; border-radius:6px;
+	background: linear-gradient(90deg, rgba(0,255,136,0.12), rgba(0,255,136,0.22));
+	border: 1px solid rgba(0,255,136,0.14);
+}
+.modal-title { font-size: 18px; margin: 0; }
+.modal-role { font-size: 12px; opacity: 0.9; color: rgba(0,255,136,0.9); }
+.badge-modal__body { margin-top: 10px; line-height: 1.6; color: rgba(220,255,230,0.94); }
+.badge-modal__actions { display:flex; gap:10px; justify-content:flex-end; margin-top:14px; }
+.modal-copy, .badge-modal__actions .secondary { padding:8px 12px; border-radius:8px; border:1px solid rgba(0,255,136,0.12); background: rgba(0,255,136,0.06); color: #fff; cursor:pointer; }
+.modal-copy:hover, .badge-modal__actions .secondary:hover { background: rgba(0,255,136,0.12); }
+
+/* Animated bucket-fill variant for badges (keeps text on top) */
+.exp-badge {
+	position: relative;
+	display: inline-block;
+	padding: 6px 12px;
+	border-radius: 8px;
+	background-image: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)), linear-gradient(90deg, rgba(0,255,136,0.18) 0%, rgba(0,255,136,0.18) 0%);
+	background-size: 100% 100%, 0% 100%;
+	background-repeat: no-repeat;
+	color: #fff;
+	font-weight: 700;
+	z-index: 2;
+	-webkit-text-fill-color: #fff; /* ensure white text */
+	transition: background-size 560ms cubic-bezier(.2,.9,.2,1), transform 260ms ease;
+}
+.exp-badge.active { background-size: 100% 100%, 100% 100%; transform: scale(1.02); }
+
+/* Confetti particles (simple DOM-based) */
+#confetti-root { position: absolute; inset: 0; pointer-events:none; z-index: 2020; overflow: visible; }
+.confetti-piece { position: absolute; width: 8px; height: 12px; opacity: 0.98; border-radius: 2px; transform-origin: center; will-change: transform, opacity; }
+
+/* prevent body scroll when modal is open */
+body.modal-open { overflow: hidden; }
+
+/* small notification next to modal for copy feedback */
+.modal-toast { position: fixed; bottom: 22px; right: 22px; background: rgba(0,0,0,0.9); color: rgba(0,255,136,1); padding: 10px 14px; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.6); z-index: 3000; font-weight:700; }
+
+/* Neon halo behind modal
+	 Gives a soft green glow that animates when modal opens */
+.badge-modal__halo {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	width: 120%;
+	height: 120%;
+	border-radius: 16px;
+	pointer-events: none;
+	z-index: 2005;
+	filter: blur(18px) saturate(160%);
+	opacity: 0;
+	background: radial-gradient(closest-side, rgba(0,255,136,0.12), rgba(0,255,136,0.06) 40%, transparent 60%);
+}
+
+/* Sparkles - small star-like elements that pop and fade */
+.sparkle {
+	position: absolute;
+	width: 6px;
+	height: 6px;
+	border-radius: 2px;
+	background: #fff;
+	box-shadow: 0 0 10px rgba(0,255,136,0.9), 0 0 6px rgba(124,255,170,0.35);
+	transform-origin: center center;
+	z-index: 2025;
+	opacity: 0;
+}
+
+/* ensure sparkles layer sits above backdrop but behind controls */
+#confetti-root .sparkle { pointer-events: none; }
+
 

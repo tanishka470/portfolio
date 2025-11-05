@@ -658,23 +658,172 @@ document.addEventListener("DOMContentLoaded", function() {
   animate();
 });
 // Experience card hover and settle animation
-
+// Replace hover morph with an interactive badge modal + confetti
 document.addEventListener('DOMContentLoaded', function() {
-  const expCards = document.querySelectorAll('.exp-card');
-  expCards.forEach(card => {
-    card.addEventListener('mouseleave', () => {
-      card.classList.add('settle');
-      card.style.width = '240px';
-      card.style.height = '420px';
-      setTimeout(() => {
-        card.classList.remove('settle');
-      }, 500); // match animation duration
-    });
-    card.addEventListener('mouseenter', () => {
-      card.style.width = '520px';
-      card.style.height = '300px';
-    });
-  });
+	// Ensure no hover morph remains; keep cards stable
+	document.querySelectorAll('.exp-card').forEach(c => {
+		c.style.width = c.style.width || '';
+		c.style.height = c.style.height || '';
+	});
+
+	const modal = document.getElementById('badgeModal');
+	if (!modal) return; // if markup not present, exit
+
+	const confettiRoot = document.getElementById('confetti-root');
+	const modalTitle = modal.querySelector('.modal-title');
+	const modalRole = modal.querySelector('.modal-role');
+	const modalDesc = modal.querySelector('.modal-desc');
+	const modalBadgePreview = modal.querySelector('.modal-badge-preview');
+	const copyBtn = modal.querySelector('.modal-copy');
+	const closeBtns = modal.querySelectorAll('.modal-close');
+
+	function openModalFromBadge(badgeEl) {
+		const card = badgeEl.closest('.exp-card');
+		const title = (card && card.querySelector('h3')) ? card.querySelector('h3').innerText.trim() : 'Details';
+		const role = (card && card.querySelector('.role')) ? card.querySelector('.role').innerText.trim() : '';
+		const desc = (card && card.querySelector('.desc')) ? card.querySelector('.desc').innerText.trim() : '';
+
+		modalTitle.textContent = title;
+		modalRole.textContent = role;
+		modalDesc.textContent = desc;
+
+		// style the small preview badge background by cloning computed styles
+		modalBadgePreview.style.background = window.getComputedStyle(badgeEl).backgroundImage || 'linear-gradient(90deg, rgba(0,255,136,0.12), rgba(0,255,136,0.22))';
+		modalBadgePreview.textContent = badgeEl.textContent.trim();
+
+			modal.setAttribute('aria-hidden', 'false');
+			document.body.classList.add('modal-open');
+			badgeEl.classList.add('active');
+
+			// GSAP-powered entrance: pop, neon-halo pulse and sparkles
+			const modalBox = modal.querySelector('.badge-modal__box');
+			const halo = document.createElement('div');
+			halo.className = 'badge-modal__halo';
+			modal.insertBefore(halo, modalBox);
+
+			// ensure starting values
+			gsap.set(modalBox, { scale: 0.72, rotation: -6, autoAlpha: 0 });
+			gsap.set(halo, { scale: 0.9, autoAlpha: 0 });
+			gsap.set(modalBadgePreview, { backgroundSize: '100% 0%' });
+
+			const tl = gsap.timeline();
+			tl.to(modalBox, { duration: 0.6, scale: 1.02, rotation: 4, autoAlpha: 1, ease: 'back.out(1.6)' })
+				.to(modalBox, { duration: 0.15, rotation: 0, scale: 1, ease: 'power2.out' }, '>-0.02')
+				.to(halo, { duration: 0.7, autoAlpha: 1, scale: 1.06, ease: 'power2.out' }, '<')
+				.to(modalBadgePreview, { duration: 0.56, backgroundSize: '100% 100%', ease: 'power2.out' }, '<0.08');
+
+			// sparkles: spawn a few small elements that scale/float out
+			const sparkleCount = 8;
+			for (let i = 0; i < sparkleCount; i++) {
+				const sp = document.createElement('div');
+				sp.className = 'sparkle';
+				const rect = modalBox.getBoundingClientRect();
+				// position near the title area
+				const sx = rect.left + rect.width * (0.3 + Math.random() * 0.4);
+				const sy = rect.top + rect.height * (0.12 + Math.random() * 0.18);
+				sp.style.left = sx + 'px';
+				sp.style.top = sy + 'px';
+				// random color tint
+				sp.style.background = ['#9fffd8','#d6fff0','#b9ffd0','#7fffc1'][Math.floor(Math.random()*4)];
+				document.getElementById('confetti-root').appendChild(sp);
+
+				const dx = (Math.random() - 0.5) * 200;
+				const dy = - (Math.random() * 160 + 40);
+				const rot = (Math.random() - 0.5) * 360;
+				gsap.timeline({ onComplete: () => sp.remove() })
+					.to(sp, { duration: 0.02, autoAlpha: 1, scale: 0.9 })
+					.to(sp, { duration: 0.9 + Math.random()*0.6, x: dx, y: dy, rotation: rot, scale: 1.6, autoAlpha: 0, ease: 'power2.out' });
+			}
+
+			// Trigger a short confetti burst around the modal center (keeps previous confetti behavior)
+			const rect = modal.getBoundingClientRect();
+			const cx = rect.left + rect.width / 2;
+			const cy = rect.top + rect.height / 3;
+			burstConfetti(cx, cy, 24);
+	}
+
+	function closeModal() {
+		modal.setAttribute('aria-hidden', 'true');
+		document.body.classList.remove('modal-open');
+		// remove active from any badge on page
+		document.querySelectorAll('.exp-badge.active').forEach(b => b.classList.remove('active'));
+	}
+
+	// Copy details to clipboard
+	copyBtn.addEventListener('click', function() {
+		const text = modalTitle.textContent + '\n' + modalRole.textContent + '\n' + modalDesc.textContent;
+		if (navigator.clipboard && window.isSecureContext) {
+			navigator.clipboard.writeText(text).then(() => showModalToast('Copied!'));
+		} else {
+			// fallback
+			const ta = document.createElement('textarea');
+			ta.value = text;
+			ta.style.position = 'fixed'; ta.style.left = '-9999px';
+			document.body.appendChild(ta); ta.select();
+			try { document.execCommand('copy'); showModalToast('Copied!'); } catch(e){ showModalToast('Copy failed'); }
+			document.body.removeChild(ta);
+		}
+	});
+
+	// Close buttons and backdrop close
+	closeBtns.forEach(b => b.addEventListener('click', closeModal));
+	modal.querySelector('[data-action="close"]').addEventListener('click', closeModal);
+	document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+	// Attach badge click handlers
+	document.querySelectorAll('.exp-badge').forEach(b => {
+		b.style.cursor = 'pointer';
+		b.addEventListener('click', (e) => {
+			e.stopPropagation();
+			openModalFromBadge(b);
+		});
+	});
+
+	// small toast shown near bottom-right
+	function showModalToast(text) {
+		const toast = document.createElement('div');
+		toast.className = 'modal-toast';
+		toast.textContent = text;
+		document.body.appendChild(toast);
+		setTimeout(() => toast.style.opacity = '1', 20);
+		setTimeout(() => { toast.style.opacity = '0'; setTimeout(()=> toast.remove(), 350); }, 1600);
+	}
+
+	// Confetti implementation: simple DOM pieces animated with requestAnimationFrame
+	function burstConfetti(x, y, count) {
+		const colors = ['#00ff88','#7cf2b1','#7cffa6','#d9ffef','#8ef3c1','#6ee1a6'];
+		for (let i=0;i<count;i++) {
+			const el = document.createElement('div');
+			el.className = 'confetti-piece';
+			el.style.background = colors[Math.floor(Math.random()*colors.length)];
+			el.style.left = (x + (Math.random()-0.5)*220) + 'px';
+			el.style.top = (y + (Math.random()-0.5)*120) + 'px';
+			el.style.opacity = '1';
+			el.style.transform = `translate3d(0,0,0) rotate(${Math.random()*360}deg)`;
+			document.getElementById('confetti-root').appendChild(el);
+
+			// animate via CSS-like frame loop
+			const vx = (Math.random()-0.5) * 6;
+			const vy = - (Math.random()*6 + 2);
+			const vr = (Math.random()-0.5)*20;
+			let px = parseFloat(el.style.left);
+			let py = parseFloat(el.style.top);
+			let life = 0;
+
+			function frame() {
+				life += 1;
+				px += vx;
+				py += vy + life*0.18; // gravity
+				el.style.left = px + 'px';
+				el.style.top = py + 'px';
+				el.style.transform = `rotate(${life*vr}deg)`;
+				el.style.opacity = String(Math.max(0, 1 - life/60));
+				if (life < 70) requestAnimationFrame(frame); else el.remove();
+			}
+			requestAnimationFrame(frame);
+		}
+	}
+
 });
 
 // Function to copy email to clipboard and show notification
