@@ -1796,4 +1796,126 @@ body.modal-open { overflow: hidden; }
 /* ensure sparkles layer sits above backdrop but behind controls */
 #confetti-root .sparkle { pointer-events: none; }
 
+/* ----------------- Responsiveness additions ----------------- */
+/* Large tablet / small desktop tweaks */
+@media (max-width: 1200px) {
+	.glass-container { padding: 1.6rem 3rem 3rem 3rem; }
+	.glass-actions { gap: 6px; right: 8px; top: 6px; }
+	.glass-action-btn { width: 84px; height: 34px; font-size: 0.75rem; }
+	.glass-title { left: 78px; font-size: 1.18rem; }
+	.glass-flex-row { gap: 18px; }
+}
+
+/* Medium-width fix: ensure notebook cards flow (avoid absolute overlap) */
+@media (max-width: 1200px) {
+	/* make pages sit side-by-side but allow their note cards to flow in document order */
+	.notebook-container { display: flex; gap: 12px; align-items: flex-start; }
+	.page { min-height: auto; padding: 40px 28px; }
+	.page-left, .page-right { flex: 1 1 50%; }
+
+	/* convert note cards from absolute to document flow so they stack naturally inside each page */
+	.note-rect {
+		position: relative !important;
+		width: 100% !important;
+		height: auto !important;
+		left: auto !important;
+		right: auto !important;
+		margin: 12px 0 !important;
+		display: block;
+		box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+	}
+
+	/* adjust serial number placement to sit above each card and not overlap */
+	.note-rect::before {
+		top: -18px !important;
+		left: 12px !important;
+		right: auto !important;
+		font-size: 18px !important;
+		width: auto !important;
+		text-align: left !important;
+	}
+
+	/* ensure note-body padding and scrolling if needed */
+	.note-rect .note-content { padding: 8px 6px; }
+	.note-rect .note-body { max-height: none; overflow: visible; }
+}
+
+/* Tablet / narrow laptop */
+@media (max-width: 900px) {
+	/* Make glass container height adaptive to content */
+	.glass-container {
+		height: auto !important;
+		max-height: none !important;
+		margin: 4vh 4vw;
+		padding: 1.6rem 1.6rem 2.4rem 1.6rem;
+	}
+
+	/* Put actions centered across the top for easier reach */
+	.glass-actions {
+		position: relative;
+		top: 0; right: 0; left: 0;
+		margin: 0 auto 12px auto;
+		justify-content: center;
+		z-index: 10100;
+		gap: 8px;
+	}
+
+	/* stack the main glass area */
+	.glass-flex-row { flex-direction: column-reverse; align-items: center; }
+	.image-container { width: 260px; height: 260px; min-width: 0; min-height: 0; }
+
+	/* Notebook becomes single-column stack */
+	.notebook-container { flex-direction: column; gap: 12px; }
+	.page { padding: 36px 20px; }
+
+	/* Make note cards flow in the document (avoid absolute) for small screens */
+	.note-rect { position: relative !important; width: 100% !important; right: auto !important; left: auto !important; height: auto !important; margin: 8px 0; }
+	.note-rect::before { top: -18px !important; left: 8px !important; right: auto !important; }
+	.note-rect .note-content { padding: 8px 6px; }
+
+	/* Experience cards stack vertically */
+	.experience-cards { display: flex; flex-direction: column; gap: 12px; }
+	.exp-card { width: 100% !important; min-height: 0 !important; }
+
+	/* Modal sizing for tablets */
+	.badge-modal__box { width: min(720px, 96%); margin: 12px; }
+}
+
+/* Mobile phones */
+@media (max-width: 600px) {
+	.glass-container { padding: 1rem 1rem 1.6rem 1rem; margin: 2vh 3vw; }
+	.glass-title { left: 66px; font-size: 1.06rem; }
+	.glass-action-btn { width: 80px; height: 34px; font-size: 0.72rem; padding: 0 6px; }
+
+	/* Make the header area not overlap content on small screens */
+	.glass-actions { padding-top: 6px; }
+
+	/* Image becomes smaller and centered */
+	.image-container { width: 200px; height: 200px; min-width: 0; min-height: 0; }
+
+	/* Notebook pages: full width and smaller padding */
+	.page { padding: 20px; }
+
+	/* Note cards: comfortable touch spacing */
+	.note-rect { padding: 10px; border-radius: 10px; }
+	.note-rect .note-content h3 { font-size: 15px; }
+	.note-rect .note-content p { font-size: 13px; }
+
+	/* Experience card typography and spacing */
+	.exp-card .exp-content { padding: 12px; }
+	.exp-card h3 { font-size: 16px; }
+
+	/* Modal: full-screen-ish on very small devices */
+	.badge-modal__box { width: calc(100% - 28px); height: auto; max-height: 86vh; padding: 14px; border-radius: 10px; }
+	.badge-modal__close { top: 8px; right: 8px; }
+}
+
+/* Very small phones / narrow portrait */
+@media (max-width: 420px) {
+	.glass-title { left: 56px; font-size: 0.98rem; }
+	.glass-action-btn { width: 72px; font-size: 0.66rem; padding: 0 6px; }
+	.modal-title { font-size: 16px; }
+	.modal-desc { font-size: 13px; }
+}
+
 
