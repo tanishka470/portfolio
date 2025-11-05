@@ -1167,12 +1167,12 @@ html {
   object-fit: contain;
 }
 
-.exp-card, .exp-card * {
-  background: rgba(0, 64, 32, 0.32) !important;
-  border: 2.5px solid rgba(0,255,136,0.32) !important;
-  backdrop-filter: blur(6px) saturate(120%) !important;
-  -webkit-backdrop-filter: blur(6px) saturate(120%) !important;
-  color: #fff !important;
+.exp-card {
+	background: rgba(0, 64, 32, 0.32) !important;
+	border: 2.5px solid rgba(0,255,136,0.32) !important;
+	backdrop-filter: blur(6px) saturate(120%) !important;
+	-webkit-backdrop-filter: blur(6px) saturate(120%) !important;
+	color: #fff !important;
 }
 
 /* Hide any direct child divs inside .exp-card except .exp-content */
@@ -1188,6 +1188,257 @@ html {
   60% { transform: scaleY(0.99) scaleX(1.02) rotate3d(1,0,0,-1deg);}
   75% { transform: scaleY(1.01) scaleX(0.99) rotate3d(0,1,0,0.5deg);}
   100% { transform: scaleY(1) scaleX(1) rotate3d(0,0,0,0deg);}
+}
+
+/* Enhanced styling for experience cards (improves visual hierarchy) */
+.exp-card .exp-content {
+	width: 100%;
+	padding: 22px;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 10px;
+	box-sizing: border-box;
+	/* Make the content area flexible and scrollable so long descriptions don't overflow the card */
+	flex: 1 1 auto;
+	min-height: 0; /* allow children to shrink inside flexbox */
+	overflow: auto;
+	max-height: 100%;
+}
+
+/* Smooth settling for content when the card changes shape on hover
+	 - transition max-width and padding so text reflows smoothly
+	 - use will-change to hint the browser for smoother animations
+	 - expand max-width when the parent grows so text doesn't abruptly reflow */
+.exp-card .exp-content {
+	transition: max-width 0.45s cubic-bezier(.77,0,.18,1),
+							padding 0.35s ease,
+							transform 0.35s cubic-bezier(.77,0,.18,1),
+							opacity 0.28s ease;
+	will-change: max-width, transform, opacity;
+	max-width: 220px; /* default constrained width */
+}
+
+.exp-card:hover .exp-content {
+	max-width: 460px; /* allow content to expand to match the larger card */
+	padding: 26px; /* soften padding change on hover */
+	transform: translateY(6px); /* subtle settle movement so text appears to move with the card */
+}
+.exp-card .exp-badge {
+	display: inline-block;
+	background: linear-gradient(90deg, #00ff88, #7cffb3);
+	color: #ffffff;
+	padding: 6px 10px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 800;
+	letter-spacing: 0.02em;
+	box-shadow: 0 6px 18px rgba(0,255,136,0.12);
+}
+
+/* Badge bucket-fill animation: fills from bottom with green gradient on hover
+	 - Uses a pseudo-element under the text to animate scaleY from 0 -> 1
+	 - Text stays above the fill and inverts color for readability once filled */
+.exp-card .exp-badge {
+	position: relative;
+	overflow: hidden;
+	color: #ffffff !important; /* keep badge text white for visibility */
+	z-index: 3; /* ensure badge text sits above the fill pseudo-element */
+	isolation: isolate; /* create a local stacking context so children/z-index behave predictably */
+	text-shadow: 0 1px 0 rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.45);
+}
+.exp-card .exp-badge::before {
+	content: '';
+	position: absolute;
+	left: 0; right: 0; bottom: 0; top: 0;
+	background: linear-gradient(180deg, rgba(0,255,136,0.95), rgba(124,255,179,0.95));
+	transform-origin: bottom;
+	transform: scaleY(0);
+	z-index: 0; /* behind the badge text */
+	transition: transform 520ms cubic-bezier(.2,.9,.2,1);
+	pointer-events: none;
+	opacity: 0.98; /* slightly less than fully opaque so text contrast remains strong */
+}
+.exp-card .exp-badge > * { z-index: 2; position: relative; }
+.exp-card .exp-badge span, .exp-card .exp-badge { z-index: 2; position: relative; }
+
+/* Hover on badge or card triggers the fill */
+.exp-card .exp-badge:hover::before,
+.exp-card:hover .exp-badge::before {
+	transform: scaleY(1);
+}
+
+/* When filled, invert the text color for legibility */
+.exp-card .exp-badge:hover,
+.exp-card:hover .exp-badge {
+	color: #00220a !important; /* ensure text color remains dark when filled */
+	text-shadow: 0 1px 0 rgba(255,255,255,0.06), 0 2px 10px rgba(0,0,0,0.45);
+}
+
+/* Small ripple at the end of the fill to mimic bucket splash */
+.exp-card .exp-badge::after {
+	content: '';
+	position: absolute;
+	left: 50%;
+	bottom: -6px;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: rgba(255,255,255,0.06);
+	transform: translateX(-50%) scaleY(0);
+	transition: transform 420ms cubic-bezier(.2,.9,.2,1) 420ms, opacity 160ms ease 420ms;
+	opacity: 0;
+	z-index: 1;
+}
+.exp-card .exp-badge:hover::after,
+.exp-card:hover .exp-badge::after {
+	transform: translateX(-50%) scaleY(1);
+	opacity: 0.9;
+}
+
+/* Stronger final override to guarantee badge text stays visible
+	 - very specific selector and !important color to out-prioritize any broad rules
+	 - ensure badge sits above the fill pseudo-element and uses normal blending */
+body .experience-cards .exp-card .exp-content .exp-badge {
+	color: #ffffff !important;       /* white text for visibility */
+	z-index: 9999 !important;        /* sit above any fills */
+	position: relative !important;
+	mix-blend-mode: normal !important;/* avoid odd blending with backgrounds */
+	-webkit-text-stroke: 0.2px rgba(0,0,0,0.06) !important; /* tiny stroke for extra clarity */
+}
+body .experience-cards .exp-card .exp-content .exp-badge::before {
+	z-index: 1 !important;           /* ensure fill stays behind the text */
+	opacity: 0.92 !important;
+}
+body .experience-cards .exp-card .exp-content .exp-badge:hover,
+body .experience-cards .exp-card:hover .exp-badge {
+	color: #00220a !important;
+}
+
+/* Additional strong overrides: force badge text fill for WebKit and a clear hover color */
+body .experience-cards .exp-card .exp-content .exp-badge,
+body .experience-cards .exp-card .exp-content .exp-badge * {
+	color: #ffffff !important;
+	-webkit-text-fill-color: #ffffff !important;
+	z-index: 99999 !important;
+	position: relative !important;
+	mix-blend-mode: normal !important;
+	text-shadow: 0 1px 0 rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.45) !important;
+}
+
+/* When the badge is being filled, switch the text to white for maximum contrast */
+body .experience-cards .exp-card .exp-content .exp-badge:hover,
+body .experience-cards .exp-card:hover .exp-badge {
+	color: #ffffff !important;
+	-webkit-text-fill-color: #ffffff !important;
+	text-shadow: 0 1px 0 rgba(0,0,0,0.28), 0 2px 10px rgba(0,0,0,0.55) !important;
+}
+
+/* Ensure the badge keeps a visible background and readable text even when not hovered. */
+body .experience-cards .exp-card .exp-content .exp-badge {
+	background: linear-gradient(90deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06)) !important;
+	border: 1px solid rgba(0,255,136,0.12) !important;
+	color: #ffffff !important;
+	-webkit-text-fill-color: #ffffff !important;
+	padding: 6px 12px !important;
+	border-radius: 999px !important;
+	box-shadow: 0 6px 18px rgba(0,0,0,0.25) !important;
+	z-index: 99999 !important;
+}
+
+/* Make sure the badge pseudo-element fill remains behind this background and text */
+body .experience-cards .exp-card .exp-content .exp-badge::before {
+	z-index: 1 !important; /* behind the text but above the badge base */
+	opacity: 0.0 !important; /* start fully invisible so base background shows */
+}
+body .experience-cards .exp-card .exp-content .exp-badge:hover::before,
+body .experience-cards .exp-card:hover .exp-badge::before {
+	opacity: 0.98 !important; /* animate opacity together with scale to reveal fill */
+}
+.exp-card .exp-content h3 {
+	margin: 0;
+	font-size: 1.05rem;
+	line-height: 1.15;
+	color: #e9fff0 !important;
+}
+.exp-card .exp-content .role {
+	margin: 0;
+	color: #cfeed8;
+	font-weight: 700;
+	font-size: 0.95rem;
+}
+.exp-card .exp-content .desc {
+	margin: 0;
+	color: #dff8e6;
+	font-size: 0.92rem;
+	line-height: 1.4;
+	opacity: 0.95;
+	/* prevent the description from overflowing the card; allow internal scroll when needed */
+	max-height: calc(100% - 80px);
+	overflow: auto;
+}
+.exp-card { /* slightly increase contrast and add subtle inner padding */
+	background: linear-gradient(180deg, rgba(0,64,32,0.26), rgba(0,64,32,0.18)) !important;
+	padding-bottom: 12px;
+}
+.exp-card:hover .exp-content .desc {
+	opacity: 1;
+}
+
+/* User requested: keep content aligned inside the card and remove green border lines */
+.exp-card {
+	border: none !important; /* remove outer greenish border */
+	box-shadow: 0 8px 26px rgba(0,0,0,0.6); /* subtle shadow for separation */
+	overflow: hidden; /* keep content inside card bounds */
+}
+.exp-card {
+	border: none !important; /* remove any inner green borders applied globally */
+}
+
+/* scrollbar styles for exp-content/desc to match site theme */
+.exp-card .exp-content::-webkit-scrollbar,
+.exp-card .exp-content .desc::-webkit-scrollbar {
+	width: 8px;
+}
+.exp-card .exp-content::-webkit-scrollbar-thumb,
+.exp-card .exp-content .desc::-webkit-scrollbar-thumb {
+	background: rgba(0,255,136,0.14);
+	border-radius: 8px;
+}
+.exp-card .exp-content,
+.exp-card .exp-content .desc {
+	scrollbar-width: thin;
+	scrollbar-color: rgba(0,255,136,0.14) transparent;
+}
+.exp-card .exp-content {
+	max-width: 220px; /* constrain content within the card */
+	margin: 0 auto; /* center content horizontally inside the card */
+	text-align: center; /* center text for visual balance */
+}
+
+/* Remove any extra colored background behind text elements inside exp-card */
+.exp-card * {
+	background: transparent !important;
+}
+.exp-card .exp-content, .exp-card .exp-content * {
+	background: transparent !important;
+}
+
+/* Stronger overrides: ensure no pseudo-element or backdrop-filter produces colored boxes
+	 but keep the badge styling intact (.exp-badge) */
+.exp-card .exp-content *:not(.exp-badge) {
+	background: transparent !important;
+	box-shadow: none !important;
+	border: none !important;
+	backdrop-filter: none !important;
+	-webkit-backdrop-filter: none !important;
+}
+.exp-card .exp-content *:not(.exp-badge)::before,
+.exp-card .exp-content *:not(.exp-badge)::after {
+	background: transparent !important;
+	box-shadow: none !important;
+	border: none !important;
+	content: none !important;
 }
 
 /* Terminal font override for section titles */
@@ -1334,3 +1585,51 @@ html {
     transform: translateY(-6px) rotate(0.8deg) scale(1.03);
   }
 }
+
+/* ------------------------------------------------------------------
+	 Override: disable hover morphing of experience cards and keep
+	 their content visible at all times.
+
+	 - Remove rotation/scale/width/height changes on hover.
+	 - Make cards naturally wide and allow height to size to content
+		 (so text is always visible without requiring hover).
+	 - Ensure inner content isn't clipped or forced to scroll.
+	 - Keep subtle shadow transition only for hover feedback.
+------------------------------------------------------------------ */
+.exp-card {
+	/* Make cards wider by default so content fits comfortably */
+	width: 420px !important;
+	height: auto !important;        /* allow height to grow with content */
+	min-height: 220px !important;  /* keep a pleasant minimum */
+	transform: none !important;    /* no initial transform */
+	transform-origin: center !important;
+	transition: box-shadow 0.28s ease, background 0.28s ease; /* mild hover feedback only */
+}
+
+/* Disable the previous hover rule which changed size/rotation */
+.exp-card:hover {
+	width: 420px !important;
+	height: auto !important;
+	transform: none !important;
+	z-index: 1 !important;
+	box-shadow: 0 10px 30px rgba(0,0,0,0.55) !important; /* keep a subtle elevated effect */
+}
+
+/* Make sure the content area shows fully and doesn't scroll by default */
+.exp-card .exp-content {
+	overflow: visible !important;
+	max-width: none !important;
+	max-height: none !important;
+}
+
+.exp-card .exp-content .desc {
+	overflow: visible !important;
+	max-height: none !important;
+}
+
+/* Remove explicit scrollbars previously added for these cards */
+.exp-card .exp-content::-webkit-scrollbar,
+.exp-card .exp-content .desc::-webkit-scrollbar {
+	display: none !important;
+}
+
