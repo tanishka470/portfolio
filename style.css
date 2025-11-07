@@ -691,8 +691,10 @@
 	left: 0;
 	width: 100%;
 	height: 4%;
-	pointer-events: none;
-	z-index: 10;
+	pointer-events: none; /* keep clicks through */
+	/* sit above scaled notebook/pages and modals so the cut & animation remain visible */
+	z-index: 11050 !important;
+	will-change: transform, opacity;
 }
 
 .glass-container::before {
@@ -703,7 +705,7 @@
 	transform: translateX(-50%);
 	width: 650px;
 	height: 36px;
-	z-index: 3;
+	z-index: 11048 !important; /* keep decorative notch mask above other page elements */
 	pointer-events: none;
 	background: transparent;
 	mask-image: radial-gradient(circle 36px at 50% 0, transparent 35px, black 36px);
@@ -1916,6 +1918,46 @@ body.modal-open { overflow: hidden; }
 	.glass-action-btn { width: 72px; font-size: 0.66rem; padding: 0 6px; }
 	.modal-title { font-size: 16px; }
 	.modal-desc { font-size: 13px; }
+}
+
+/* Preserve laptop-like two-page notebook on medium screens by scaling
+	 instead of converting cards to document flow. Applies to widths 901-1200px. */
+@media (min-width: 901px) and (max-width: 1200px) {
+	.notebook-container {
+		transform: scale(0.92);
+		transform-origin: top center;
+		margin: 0 auto 18px auto;
+		max-width: 1200px;
+		display: grid; /* keep two-page layout intact */
+		grid-template-columns: 1fr 1fr;
+		gap: 0 8px;
+	}
+
+	/* Keep pages occupying left/right columns */
+	.page-left, .page-right { position: relative; }
+
+	/* Force note cards back to absolute positioning as in desktop layout */
+	.note-rect {
+		position: absolute !important;
+		width: 380px !important;
+		height: 150px !important;
+		margin: 0 !important;
+		left: auto !important;
+		right: auto !important;
+		display: block !important;
+	}
+
+	/* Ensure the pre-defined corner placements still work */
+	.rect-top-left { left: 36px !important; top: 48px !important; }
+	.rect-bottom-left { left: 36px !important; bottom: 48px !important; }
+	.rect-top-right { right: 36px !important; top: 48px !important; }
+	.rect-bottom-right { right: 36px !important; bottom: 48px !important; }
+
+	/* Serial numbers positioned just outside each card like on laptop */
+	.note-rect::before { top: 48px !important; transform: translateY(-12px) !important; }
+
+	/* keep note body scroll limited inside card if content is long */
+	.note-rect .note-body { max-height: 160px; overflow: auto; }
 }
 
 
